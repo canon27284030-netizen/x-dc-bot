@@ -1,12 +1,11 @@
 import os, requests, json, time
 from ntscraper import Nitter
 
-# Secrets에서 설정값 가져오기
+# Secrets 설정
 DC_ID = os.environ.get('DC_ID')
 DC_PW = os.environ.get('DC_PW')
 DC_GALL = os.environ.get('TARGET_GALL')
 
-# --- [감시할 X 계정 목록] ---
 TARGET_USERS = [
     'DDDDragon_', 'Mang_nae_', 'damyui_', 'honeychurros1', 
     'AyaUke_V', 'projecti_kr', 'ORIGOGI0011', 'HaSiyo_Projecti', 
@@ -43,21 +42,24 @@ login_dc()
 for user in TARGET_USERS:
     try:
         print(f"@{user} 확인 중...")
-        # [수정된 부분] get_posts 대신 get_tweets 사용
+        # 데이터를 못 가져올 경우를 대비해 에러 방지 처리
         tweets = scraper.get_tweets(user, mode='user', number=1)
         
-        if tweets['tweets']:
+        if tweets and 'tweets' in tweets and len(tweets['tweets']) > 0:
             tweet = tweets['tweets'][0]
             link = tweet['link']
             
-            # 테스트를 위해 무조건 글을 쓰도록 if True 유지 (확인 후 나중에 복구)
+            # 테스트를 위해 True 유지. 확인 후 나중에 history.get(user) != link로 복구하세요.
             if True: 
                 print(f"새 글 발견! @{user}")
                 post_to_dc(user, tweet['text'], link)
                 history[user] = link
                 time.sleep(3)
+        else:
+            print(f"@{user}: 새로운 트윗을 찾을 수 없거나 접근이 제한되었습니다.")
+            
     except Exception as e:
-        print(f"@{user} 에러 발생: {e}")
+        print(f"@{user} 처리 중 상세 에러: {e}")
 
 with open(DB_FILE, "w") as f:
     json.dump(history, f)
