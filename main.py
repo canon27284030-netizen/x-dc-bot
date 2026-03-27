@@ -60,7 +60,7 @@ for user in TARGET_USERS:
             link = tweet['link']
             
             # 이전에 올린 링크와 다를 경우에만 게시
-            if history.get(user) != link:
+            if True: # history.get(user) != link:
                 print(f"새 글 발견! @{user}")
                 post_to_dc(user, tweet['text'], link)
                 history[user] = link
