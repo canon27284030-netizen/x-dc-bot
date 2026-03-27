@@ -39,10 +39,12 @@ if os.path.exists(DB_FILE):
 
 login_dc()
 
+# 작동하는 인스턴스 리스트를 가져오려고 시도
+print("작동하는 서버 리스트 확인 중...")
 for user in TARGET_USERS:
     try:
         print(f"@{user} 확인 중...")
-        # 데이터를 못 가져올 경우를 대비해 에러 방지 처리
+        # 인스턴스를 무작위로 선택하여 시도
         tweets = scraper.get_tweets(user, mode='user', number=1)
         
         if tweets and 'tweets' in tweets and len(tweets['tweets']) > 0:
@@ -56,10 +58,10 @@ for user in TARGET_USERS:
                 history[user] = link
                 time.sleep(3)
         else:
-            print(f"@{user}: 새로운 트윗을 찾을 수 없거나 접근이 제한되었습니다.")
+            print(f"@{user}: 데이터를 가져오지 못했습니다. (서버 응답 없음)")
             
     except Exception as e:
-        print(f"@{user} 처리 중 상세 에러: {e}")
+        print(f"@{user} 상세 에러: {e}")
 
 with open(DB_FILE, "w") as f:
     json.dump(history, f)
