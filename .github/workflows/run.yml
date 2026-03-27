@@ -1,0 +1,32 @@
+name: X-Monitor-Bot
+on:
+  schedule:
+    - cron: '*/10 * * * *' # 10분마다 자동으로 실행합니다.
+  workflow_dispatch:      # 수동 실행 버튼을 만들어줍니다.
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 새 글 기록을 저장하기 위해 필요합니다.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install ntscraper requests
+      - name: Run Bot
+        env:
+          DC_ID: ${{ secrets.DC_ID }}
+          DC_PW: ${{ secrets.DC_PW }}
+          TARGET_GALL: ${{ secrets.TARGET_GALL }}
+        run: python main.py
+      - name: Update History
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add last_tweets.json
+          git commit -m "update history" || exit 0
+          git push
